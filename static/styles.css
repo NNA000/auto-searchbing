@@ -1,0 +1,84 @@
+body{
+    font-family: 'Sono', sans-serif;
+    color: white;
+    background-color: black;
+}
+.icon-button {
+    font-size: 25px;
+    color: white;
+}
+.link-redirect {
+    font-size: 20px;
+    margin-top: 50px;
+    margin-left: 45%;
+    color: white;
+}
+
+.framesearch {
+    width: 80%;
+    height: 950px;
+}
+
+h1,
+h3 a {
+    text-align: center;
+    color: white;
+
+}
+
+.btn-custom {
+    margin: 1rem;
+    text-align: center;
+    background: transparent;
+    border: 2px solid;
+    color: white;
+    border-color: white;
+    font-size: 30px;
+    width: 80%;
+    border-radius: 8px;
+    padding: 0.5rem;
+}
+
+.btn-custom:hover {
+    transform: scale(1.05);
+    background-color: darkslategray;
+}
+
+.div-content2 {
+    margin: 0.25rem;
+    text-align: center;
+
+}
+
+.modal-custom {
+    background-color: darkslategray;
+    color: white;
+}
+
+.contador {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: aqua;
+    width: 100px;
+    height: 100px;
+    text-align: center;
+    border: 3px solid;
+    border-color: aliceblue;
+    border-radius: 1rem;
+
+
+}
+
+.contador-content {
+    height: 100%;
+    /* specify a height for the element */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: gray;
+    opacity: 0.5;
+    border-radius: 10px;
+
+}

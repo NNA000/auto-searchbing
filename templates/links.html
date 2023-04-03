@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoSearch</title>
+    <link rel="icon" href="{{ url_for('static', filename='icon.png') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/tooltip.css') }}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <!--Own Styles-->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+
+
+</head>
+
+<body>
+    <header>
+        <h1>Web de búsqueda automática</h1>
+    </header>
+    <main>
+        <div class="contador" id="counter">
+            <h2 class="contador-content"> 0 </h2>
+        </div>
+
+        <div class="div-content2">
+            <h2 id="link-redirect">
+                Palabra:
+                <b id="word"></b>
+            </h2>
+        </div>
+
+        <div class="div-content2">
+            <button id="update" onclick="update_link()" class="btn-custom">Manual Update</button>
+
+        </div>
+
+        <div class="div-content2">
+            <button id="autoupdate" class="btn-custom" data-toggle="modal" data-target="#config-modal">Auto-Update</button>
+        </div>
+
+        <div class="div-content2">
+
+        </div>
+
+        <div class="div-content2">
+            <iframe src="https://www.bing.com/search?q=superchery" class="framesearch" id="framesearch"
+                title="frame-search"></iframe>
+        </div>
+    </main>
+
+    <article>
+        <div class="modal fade" id="config-modal" tabindex="-1" role="dialog" aria-labelledby="config-modalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content modal-custom">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="config-modalLabel">Auto Update Configuration</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group row">
+                            <label for="staticEmail" class="col-4 col-sm-4 col-form-label">Every (ms):</label>
+                            <div class=" col-4 col-sm-6">
+                                <select name="execute-every" id="execute-every" class="form-control"
+                                    aria-label=".form-select-sm example">
+
+                                    <option value="1500">1500</option>
+                                    <option value="2000" selected>2000</option>
+                                    <option value="2500">2500</option>
+                                    <option value="3000">3000</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="staticEmail" class="col-4 col-sm-4 col-form-label">Times :</label>
+                            <div class=" col-4 col-sm-6">
+                                <select name="execute-times" id="execute-times" class="form-control"
+                                    aria-label=".form-select-sm example">
+                                    <option value="60">60</option>
+                                    <option value="40" selected>40</option>
+                                    <option value="20">20</option>
+                                    <option value="10">10</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="staticEmail" class="col-4 col-sm-4 col-form-label">Response API (ms):</label>
+                            <div class=" col-4 col-sm-6">
+                                <select name="api-response" id="api-response" class="form-control"
+                                    aria-label=".form-select-sm example">
+                                    <option value="30">30</option>
+                                    <option value="60" selected>60</option>
+                                    <option value="80">80</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer text-align center">
+                        <button type="button" class="btn btn-dark " id="stop-execution">Stop Current Execution</button>
+                        <button type="button" class="btn btn-dark " onclick="auto_update()">Proceed</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </article>
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script>
+    const link_search_bing = 'https://www.bing.com/search?q=:1'
+    // function to fetch list of English words and select a random word
+    async function randomWord() {
+        // fetch list of English words from remote source
+        const response = await fetch("https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt");
+        const words = await response.text();
+        // convert text data to array of words
+        const wordList = words.split("\n");
+        // select a random word from the array
+        const index = Math.floor(Math.random() * wordList.length);
+        return wordList[index];
+    }
+    class ElementManager {
+        constructor(elementId) {
+            this.element = document.getElementById(elementId);
+            this.content_text = this.element.querySelector('.contador-content')
+        }
+
+        hide() {
+            this.element.style.display = 'none';
+        }
+
+        show() {
+            this.element.style.display = 'block';
+        }
+        set_content(text) {
+            this.content_text.textContent = text
+        }
+        set_default_content() {
+            this.content_text.textContent = "0"
+        }
+    }
+    const counter_element = new ElementManager('counter');
+    counter_element.hide()
+
+
+    function update_word_onlink(word) {
+        // Update link word
+        const texto_encontrado = document.getElementById("word")
+        texto_encontrado.textContent = word
+        const link_redirect = document.getElementById("link-redirect")
+        link_redirect.href = link_search_bing.replace(":1", word)
+        const time_update_frame = document.getElementById('api-response').value
+        setTimeout(function () {
+            let frame = document.getElementById('framesearch')
+            frame.src = link_redirect.href
+        }, parseInt(time_update_frame))
+    }
+
+    async function update_word_onlinkwithrandom() {
+        const word = await randomWord()
+        update_word_onlink(word)
+    }
+
+
+    function update_link(time = 1) {
+        counter_element.set_content(time)
+        setTimeout(function () {
+            update_word_onlinkwithrandom();
+        }, 10)
+    }
+    function auto_update() {
+        // To autoupdate
+        $('#config-modal').modal('hide')
+        let times_execution = $("#execute-times").val()
+        let execute_every = $("#execute-every").val()
+        counter_element.show()
+        let counter = 0
+        const intervalId = setInterval(() => {
+            counter++;
+            update_link(counter);
+            if (counter > parseInt(times_execution)) {
+                clearInterval(intervalId);
+                counter_element.hide()
+                counter_element.set_default_content()
+            }
+        }, parseInt(execute_every)); // calls update_link every "api_responsetime" ms,   "times_execution" times
+        $("#stop-execution").click(function () {
+            clearInterval(intervalId);
+            counter_element.hide()
+            counter_element.set_default_content()
+        })
+
+    }
+
+    let button_link = document.getElementById("link-redirect")
+    button_link.addEventListener("click", update_link)
+
+
+
+</script>
+
+</html>
